@@ -2,6 +2,7 @@
 <html>
 
 <head>
+
     <title>2048</title>
 
     <style>
@@ -11,9 +12,11 @@
             text-align: center;
         }
 
+
         h1 {
             font-size: 60px;
         }
+
 
         #score {
             font-size: 30px;
@@ -43,14 +46,16 @@
         }
 
 
+
         .tile {
 
             width: 100px;
             height: 100px;
 
             display: flex;
-            align-items: center;
+
             justify-content: center;
+            align-items: center;
 
             font-size: 40px;
             font-weight: bold;
@@ -58,6 +63,7 @@
             border-radius: 8px;
 
         }
+
 
 
         button {
@@ -74,6 +80,7 @@
 </head>
 
 
+
 <body>
 
 
@@ -88,9 +95,15 @@
     <div id="board"></div>
 
 
-    <button onclick="restart()">Restart</button>
+    <button onclick="restart()">
+        Restart
+    </button>
 
-    <button onclick="undo()">Undo</button>
+
+    <button onclick="undo()">
+        Undo
+    </button>
+
 
 
     <script>
@@ -100,54 +113,79 @@
 
         let score = 0;
 
-        let oldBoard;
 
-        let oldScore;
+        let previousBoard = null;
+
+        let previousScore = 0;
+
+
+        let hasWon = false;
 
 
 
         function restart() {
 
+
             board = [
+
                 [0, 0, 0, 0],
                 [0, 0, 0, 0],
                 [0, 0, 0, 0],
                 [0, 0, 0, 0]
+
             ];
+
 
             score = 0;
 
+            hasWon = false;
+
+
+            previousBoard = null;
+
+
             spawn();
+
             spawn();
+
 
             draw();
 
-        }
-
-
-
-
-        function copy() {
-
-            oldBoard = JSON.parse(JSON.stringify(board));
-
-            oldScore = score;
 
         }
+
+
+
+
+        function saveState() {
+
+            previousBoard =
+                JSON.parse(JSON.stringify(board));
+
+
+            previousScore = score;
+
+        }
+
 
 
 
         function undo() {
 
-            if (oldBoard) {
 
-                board = JSON.parse(JSON.stringify(oldBoard));
+            if (previousBoard) {
 
-                score = oldScore;
+                board =
+                    JSON.parse(JSON.stringify(previousBoard));
+
+
+                score = previousScore;
+
 
                 draw();
 
             }
+
 
         }
 
@@ -156,6 +194,7 @@
 
         function spawn() {
 
+
             let empty = [];
 
 
@@ -163,22 +202,30 @@
 
                 for (let c = 0; c < 4; c++) {
 
-                    if (board[r][c] == 0)
+
+                    if (board[r][c] === 0) {
 
                         empty.push([r, c]);
+
+                    }
 
                 }
 
             }
 
 
+
             if (empty.length) {
 
-                let p = empty[Math.floor(Math.random() * empty.length)];
 
-                board[p[0]][p[1]] = 2;
+                let pos =
+                    empty[Math.floor(Math.random() * empty.length)];
+
+
+                board[pos[0]][pos[1]] = 2;
 
             }
+
 
         }
 
@@ -187,17 +234,52 @@
 
         function draw() {
 
+
             let area = document.getElementById("board");
+
 
             area.innerHTML = "";
 
 
+
+            let colors = {
+
+                0: "#cdc1b4",
+
+                2: "#eee4da",
+
+                4: "#ede0c8",
+
+                8: "#f2b179",
+
+                16: "#f59563",
+
+                32: "#f67c5f",
+
+                64: "#f65e3b",
+
+                128: "#edcf72",
+
+                256: "#edcc61",
+
+                512: "#edc850",
+
+                1024: "#edc53f",
+
+                2048: "#edc22e"
+
+            };
+
+
+
             for (let r = 0; r < 4; r++) {
+
 
                 for (let c = 0; c < 4; c++) {
 
 
                     let tile = document.createElement("div");
+
 
                     let value = board[r][c];
 
@@ -205,43 +287,17 @@
                     tile.className = "tile";
 
 
-                    let colors = {
-
-                        0: "#cdc1b4",
-
-                        2: "#eee4da",
-
-                        4: "#ede0c8",
-
-                        8: "#f2b179",
-
-                        16: "#f59563",
-
-                        32: "#f67c5f",
-
-                        64: "#f65e3b",
-
-                        128: "#edcf72",
-
-                        256: "#edcc61",
-
-                        512: "#edc850",
-
-                        1024: "#edc53f",
-
-                        2048: "#edc22e"
-
-                    };
+                    tile.style.background =
+                        colors[value];
 
 
-                    tile.style.background = colors[value];
 
-
-                    if (value) {
+                    if (value !== 0) {
 
                         tile.innerText = value;
 
                     }
+
 
 
                     area.appendChild(tile);
@@ -250,6 +306,7 @@
                 }
 
             }
+
 
 
             document.getElementById("score").innerText =
@@ -261,43 +318,61 @@
 
 
 
+
+
         function slide(row) {
 
 
-            row = row.filter(x => x);
+            row = row.filter(
+                x => x !== 0
+            );
+
 
 
             for (let i = 0; i < row.length - 1; i++) {
 
 
-                if (row[i] == row[i + 1]) {
+                if (row[i] === row[i + 1]) {
+
 
                     row[i] *= 2;
 
+
                     score += row[i];
 
+
                     row.splice(i + 1, 1);
+
 
                 }
 
             }
 
 
-            while (row.length < 4)
+
+            while (row.length < 4) {
 
                 row.push(0);
+
+            }
+
 
 
             return row;
 
+
         }
 
 
 
 
-        function left() {
 
-            copy();
+
+        function moveLeft() {
+
+
+            saveState();
+
 
             for (let r = 0; r < 4; r++) {
 
@@ -305,70 +380,102 @@
 
             }
 
+
             spawn();
 
             draw();
 
-            win();
+            checkWin();
+
 
         }
 
 
 
 
-        function right() {
 
-            copy();
+
+        function moveRight() {
+
+
+            saveState();
+
 
             for (let r = 0; r < 4; r++) {
 
-                board[r] = slide(board[r].reverse()).reverse();
+
+                board[r].reverse();
+
+
+                board[r] = slide(board[r]);
+
+
+                board[r].reverse();
+
 
             }
+
+
 
             spawn();
 
             draw();
 
-            win();
+            checkWin();
+
 
         }
 
-        function rotate() {
 
-            let n = [
+
+
+
+
+        function transpose() {
+
+
+            let newBoard = [
+
                 [0, 0, 0, 0],
                 [0, 0, 0, 0],
                 [0, 0, 0, 0],
                 [0, 0, 0, 0]
+
             ];
+
 
 
             for (let r = 0; r < 4; r++) {
 
+
                 for (let c = 0; c < 4; c++) {
 
-                    n[c][3 - r] = board[r][c];
+
+                    newBoard[c][r] = board[r][c];
+
 
                 }
 
             }
 
-            board = n;
+
+            board = newBoard;
+
 
         }
 
 
 
-        function up() {
 
-            copy();
 
-            rotate();
 
-            rotate();
+        function moveUp() {
 
-            rotate();
+
+            saveState();
+
+
+            transpose();
 
 
             for (let r = 0; r < 4; r++) {
@@ -378,63 +485,109 @@
             }
 
 
-            rotate();
+            transpose();
+
 
             spawn();
 
             draw();
 
-            win();
+            checkWin();
+
 
         }
 
 
 
 
-        function down() {
 
-            copy();
 
-            rotate();
+
+        function moveDown() {
+
+
+            saveState();
+
+
+            transpose();
+
+
 
             for (let r = 0; r < 4; r++) {
+
+
+                board[r].reverse();
+
 
                 board[r] = slide(board[r]);
 
+
+                board[r].reverse();
+
+
             }
 
-            rotate();
-            rotate();
-            rotate();
+
+
+            transpose();
+
 
 
             spawn();
 
             draw();
 
-            win();
+            checkWin();
+
 
         }
 
 
 
 
-        function win() {
+
+
+        function checkWin() {
+
+
+            if (hasWon) {
+
+                return;
+
+            }
+
+
 
             for (let r = 0; r < 4; r++) {
+
 
                 for (let c = 0; c < 4; c++) {
 
-                    if (board[r][c] == 2048) {
-
-                        let again = confirm(
-                            "You reached 2048!\nOK = Keep Going\nCancel = Restart"
-                        );
 
 
-                        if (!again)
+                    if (board[r][c] === 2048) {
+
+
+                        hasWon = true;
+
+
+
+                        let keepGoing =
+                            confirm(
+                                "You reached 2048!\n\nOK = Keep Going\nCancel = Restart"
+                            );
+
+
+
+                        if (!keepGoing) {
 
                             restart();
+
+                        }
+
+
+
+                        return;
 
 
                     }
@@ -443,7 +596,10 @@
 
             }
 
+
         }
+
+
 
 
 
@@ -451,23 +607,54 @@
 
         document.addEventListener(
             "keydown",
-            e => {
+            function (e) {
 
 
-                if (e.key == "ArrowLeft" || e.key == "a")
-                    left();
+                if (e.key === "ArrowLeft" || e.key === "a") {
+
+                    moveLeft();
+
+                }
 
 
-                if (e.key == "ArrowRight" || e.key == "d")
-                    right();
+
+                if (e.key === "ArrowRight" || e.key === "d") {
+
+                    moveRight();
+
+                }
 
 
-                if (e.key == "ArrowUp" || e.key == "w")
-                    up();
+
+                if (e.key === "ArrowUp" || e.key === "w") {
+
+                    moveUp();
+
+                }
 
 
-                if (e.key == "ArrowDown" || e.key == "s")
-                    down();
+
+                if (e.key === "ArrowDown" || e.key === "s") {
+
+                    moveDown();
+
+                }
+
+
+
+                if (e.key === "u") {
+
+                    undo();
+
+                }
+
+
+
+                if (e.key === "r") {
+
+                    restart();
+
+                }
 
 
             });
@@ -476,58 +663,83 @@
 
 
 
-        let startX, startY;
+
+        let startX = 0;
+
+        let startY = 0;
+
 
 
         document.addEventListener(
             "touchstart",
-            e => {
+            function (e) {
+
 
                 startX = e.touches[0].clientX;
 
                 startY = e.touches[0].clientY;
 
+
             });
+
 
 
 
         document.addEventListener(
             "touchend",
-            e => {
+            function (e) {
 
 
-                let dx = e.changedTouches[0].clientX - startX;
+                let dx =
+                    e.changedTouches[0].clientX - startX;
 
-                let dy = e.changedTouches[0].clientY - startY;
+
+                let dy =
+                    e.changedTouches[0].clientY - startY;
 
 
 
                 if (Math.abs(dx) > Math.abs(dy)) {
 
 
-                    if (dx > 0)
-                        right();
+                    if (dx > 0) {
 
-                    else
-                        left();
+                        moveRight();
+
+                    }
+
+                    else {
+
+                        moveLeft();
+
+                    }
 
 
                 }
 
+
                 else {
 
 
-                    if (dy > 0)
-                        down();
+                    if (dy > 0) {
 
-                    else
-                        up();
+                        moveDown();
+
+                    }
+
+                    else {
+
+                        moveUp();
+
+                    }
 
 
                 }
 
 
             });
+
+
 
 
 
