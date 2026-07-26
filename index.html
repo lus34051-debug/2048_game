@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>2048</title>
+
+    <style>
+        body {
+            background: #faf8ef;
+            font-family: Arial;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 60px;
+        }
+
+        #score {
+            font-size: 30px;
+            margin: 20px;
+        }
+
+
+        #board {
+
+            width: 420px;
+            height: 420px;
+
+            margin: auto;
+
+            padding: 10px;
+
+            background: #bbada0;
+
+            display: grid;
+
+            grid-template-columns: repeat(4, 100px);
+
+            gap: 10px;
+
+            border-radius: 10px;
+
+        }
+
+
+        .tile {
+
+            width: 100px;
+            height: 100px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 40px;
+            font-weight: bold;
+
+            border-radius: 8px;
+
+        }
+
+
+        button {
+
+            margin: 15px;
+
+            padding: 10px 25px;
+
+            font-size: 20px;
+
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <h1>2048</h1>
+
+
+    <div id="score">
+        Score: 0
+    </div>
+
+
+    <div id="board"></div>
+
+
+    <button onclick="restart()">Restart</button>
+
+    <button onclick="undo()">Undo</button>
+
+
+    <script>
+
+
+        let board;
+
+        let score = 0;
+
+        let oldBoard;
+
+        let oldScore;
+
+
+
+        function restart() {
+
+            board = [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0]
+            ];
+
+            score = 0;
+
+            spawn();
+            spawn();
+
+            draw();
+
+        }
+
+
+
+
+        function copy() {
+
+            oldBoard = JSON.parse(JSON.stringify(board));
+
+            oldScore = score;
+
+        }
+
+
+
+        function undo() {
+
+            if (oldBoard) {
+
+                board = JSON.parse(JSON.stringify(oldBoard));
+
+                score = oldScore;
+
+                draw();
+
+            }
+
+        }
+
+
+
+
+        function spawn() {
+
+            let empty = [];
+
+
+            for (let r = 0; r < 4; r++) {
+
+                for (let c = 0; c < 4; c++) {
+
+                    if (board[r][c] == 0)
+
+                        empty.push([r, c]);
+
+                }
+
+            }
+
+
+            if (empty.length) {
+
+                let p = empty[Math.floor(Math.random() * empty.length)];
+
+                board[p[0]][p[1]] = 2;
+
+            }
+
+        }
+
+
+
+
+        function draw() {
+
+            let area = document.getElementById("board");
+
+            area.innerHTML = "";
+
+
+            for (let r = 0; r < 4; r++) {
+
+                for (let c = 0; c < 4; c++) {
+
+
+                    let tile = document.createElement("div");
+
+                    let value = board[r][c];
+
+
+                    tile.className = "tile";
+
+
+                    let colors = {
+
+                        0: "#cdc1b4",
+
+                        2: "#eee4da",
+
+                        4: "#ede0c8",
+
+                        8: "#f2b179",
+
+                        16: "#f59563",
+
+                        32: "#f67c5f",
+
+                        64: "#f65e3b",
+
+                        128: "#edcf72",
+
+                        256: "#edcc61",
+
+                        512: "#edc850",
+
+                        1024: "#edc53f",
+
+                        2048: "#edc22e"
+
+                    };
+
+
+                    tile.style.background = colors[value];
+
+
+                    if (value) {
+
+                        tile.innerText = value;
+
+                    }
+
+
+                    area.appendChild(tile);
+
+
+                }
+
+            }
+
+
+            document.getElementById("score").innerText =
+                "Score: " + score;
+
+
+        }
+
+
+
+
+        function slide(row) {
+
+
+            row = row.filter(x => x);
+
+
+            for (let i = 0; i < row.length - 1; i++) {
+
+
+                if (row[i] == row[i + 1]) {
+
+                    row[i] *= 2;
+
+                    score += row[i];
+
+                    row.splice(i + 1, 1);
+
+                }
+
+            }
+
+
+            while (row.length < 4)
+
+                row.push(0);
+
+
+            return row;
+
+        }
+
+
+
+
+        function left() {
+
+            copy();
+
+            for (let r = 0; r < 4; r++) {
+
+                board[r] = slide(board[r]);
+
+            }
+
+            spawn();
+
+            draw();
+
+            win();
+
+        }
+
+
+
+
+        function right() {
+
+            copy();
+
+            for (let r = 0; r < 4; r++) {
+
+                board[r] = slide(board[r].reverse()).reverse();
+
+            }
+
+            spawn();
+
+            draw();
+
+            win();
+
+        }
+
+        function rotate() {
+
+            let n = [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0]
+            ];
+
+
+            for (let r = 0; r < 4; r++) {
+
+                for (let c = 0; c < 4; c++) {
+
+                    n[c][3 - r] = board[r][c];
+
+                }
+
+            }
+
+            board = n;
+
+        }
+
+
+
+        function up() {
+
+            copy();
+
+            rotate();
+
+            rotate();
+
+            rotate();
+
+
+            for (let r = 0; r < 4; r++) {
+
+                board[r] = slide(board[r]);
+
+            }
+
+
+            rotate();
+
+            spawn();
+
+            draw();
+
+            win();
+
+        }
+
+
+
+
+        function down() {
+
+            copy();
+
+            rotate();
+
+            for (let r = 0; r < 4; r++) {
+
+                board[r] = slide(board[r]);
+
+            }
+
+            rotate();
+            rotate();
+            rotate();
+
+
+            spawn();
+
+            draw();
+
+            win();
+
+        }
+
+
+
+
+        function win() {
+
+            for (let r = 0; r < 4; r++) {
+
+                for (let c = 0; c < 4; c++) {
+
+                    if (board[r][c] == 2048) {
+
+                        let again = confirm(
+                            "You reached 2048!\nOK = Keep Going\nCancel = Restart"
+                        );
+
+
+                        if (!again)
+
+                            restart();
+
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+
+
+
+        document.addEventListener(
+            "keydown",
+            e => {
+
+
+                if (e.key == "ArrowLeft" || e.key == "a")
+                    left();
+
+
+                if (e.key == "ArrowRight" || e.key == "d")
+                    right();
+
+
+                if (e.key == "ArrowUp" || e.key == "w")
+                    up();
+
+
+                if (e.key == "ArrowDown" || e.key == "s")
+                    down();
+
+
+            });
+
+
+
+
+
+        let startX, startY;
+
+
+        document.addEventListener(
+            "touchstart",
+            e => {
+
+                startX = e.touches[0].clientX;
+
+                startY = e.touches[0].clientY;
+
+            });
+
+
+
+        document.addEventListener(
+            "touchend",
+            e => {
+
+
+                let dx = e.changedTouches[0].clientX - startX;
+
+                let dy = e.changedTouches[0].clientY - startY;
+
+
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+
+
+                    if (dx > 0)
+                        right();
+
+                    else
+                        left();
+
+
+                }
+
+                else {
+
+
+                    if (dy > 0)
+                        down();
+
+                    else
+                        up();
+
+
+                }
+
+
+            });
+
+
+
+        restart();
+
+
+    </script>
+
+
+</body>
+
+</html>
