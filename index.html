@@ -3,577 +3,503 @@
 
 <head>
 
-    <title>2048</title>
+<title>2048</title>
 
-    <style>
-        body {
-            background: #faf8ef;
-            font-family: Arial;
-            text-align: center;
-        }
+<style>
 
+body{
+    background:#faf8ef;
+    font-family:Arial;
+    text-align:center;
+}
 
-        h1 {
-            font-size: 60px;
-        }
+h1{
+    font-size:60px;
+}
 
+#score{
+    font-size:30px;
+    margin:20px;
+}
 
-        #score {
-            font-size: 30px;
-            margin: 20px;
-        }
+#board{
 
+    width:420px;
+    height:420px;
 
-        #board {
+    margin:auto;
 
-            width: 420px;
-            height: 420px;
+    padding:10px;
 
-            margin: auto;
+    background:#bbada0;
 
-            padding: 10px;
+    display:grid;
 
-            background: #bbada0;
+    grid-template-columns:repeat(4,100px);
 
-            display: grid;
+    gap:10px;
 
-            grid-template-columns: repeat(4, 100px);
-
-            gap: 10px;
-
-            border-radius: 10px;
-
-        }
+    border-radius:10px;
+}
 
 
+.tile{
 
-        .tile {
+    width:100px;
+    height:100px;
 
-            width: 100px;
-            height: 100px;
+    display:flex;
 
-            display: flex;
+    justify-content:center;
+    align-items:center;
 
-            justify-content: center;
-            align-items: center;
+    font-size:40px;
+    font-weight:bold;
 
-            font-size: 40px;
-            font-weight: bold;
+    border-radius:8px;
 
-            border-radius: 8px;
-
-        }
-
+}
 
 
-        button {
+button{
 
-            margin: 15px;
+    margin:15px;
 
-            padding: 10px 25px;
+    padding:10px 25px;
 
-            font-size: 20px;
+    font-size:20px;
 
-        }
-    </style>
+}
+
+</style>
 
 </head>
-
 
 
 <body>
 
 
-    <h1>2048</h1>
+<h1>2048</h1>
 
 
-    <div id="score">
-        Score: 0
-    </div>
+<div id="score">
+Score: 0
+</div>
 
 
-    <div id="board"></div>
+<div id="board"></div>
 
 
-    <button onclick="restart()">
-        Restart
-    </button>
+<button onclick="restart()">
+Restart
+</button>
 
 
-    <button onclick="undo()">
-        Undo
-    </button>
+<button onclick="undo()">
+Undo
+</button>
 
 
 
-    <script>
+<script>
 
 
-        let board;
+let board;
 
-        let score = 0;
+let score = 0;
 
 
-        let previousBoard = null;
+let oldBoard = null;
 
-        let previousScore = 0;
+let oldScore = 0;
 
 
-        let keepPlaying = true;
+// 是否已经选择继续游戏
+let keepPlaying = true;
 
 
 
-        function restart() {
+function restart(){
 
+    board=[
+        [0,0,0,0],
+        [0,0,0,0],
+        [0,0,0,0],
+        [0,0,0,0]
+    ];
 
-            board = [
 
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0]
+    score=0;
 
-            ];
+    keepPlaying=true;
 
+    oldBoard=null;
 
-            score = 0;
 
-            keepPlaying=true;
+    spawn();
+    spawn();
 
 
-            previousBoard = null;
+    draw();
 
+}
 
-            spawn();
 
-            spawn();
 
 
-            draw();
+function saveState(){
 
+    oldBoard =
+    JSON.parse(JSON.stringify(board));
 
-        }
 
+    oldScore=score;
 
+}
 
 
-        function saveState() {
 
-            previousBoard =
-                JSON.parse(JSON.stringify(board));
 
+function undo(){
 
-            previousScore = score;
+    if(oldBoard){
 
-        }
+        board =
+        JSON.parse(JSON.stringify(oldBoard));
 
 
+        score=oldScore;
 
 
-        function undo() {
+        draw();
 
-
-            if (previousBoard) {
-
-                board =
-                    JSON.parse(JSON.stringify(previousBoard));
-
-
-                score = previousScore;
-
-
-                draw();
-
-            }
-
-
-        }
-
-
-
-
-        function spawn() {
-
-
-            let empty = [];
-
-
-            for (let r = 0; r < 4; r++) {
-
-                for (let c = 0; c < 4; c++) {
-
-
-                    if (board[r][c] === 0) {
-
-                        empty.push([r, c]);
-
-                    }
-
-                }
-
-            }
-
-
-
-            if (empty.length) {
-
-
-                let pos =
-                    empty[Math.floor(Math.random() * empty.length)];
-
-
-                board[pos[0]][pos[1]] = 2;
-
-            }
-
-
-        }
-
-
-
-
-        function draw() {
-
-
-            let area = document.getElementById("board");
-
-
-            area.innerHTML = "";
-
-
-
-            let colors = {
-
-                0: "#cdc1b4",
-
-                2: "#eee4da",
-
-                4: "#ede0c8",
-
-                8: "#f2b179",
-
-                16: "#f59563",
-
-                32: "#f67c5f",
-
-                64: "#f65e3b",
-
-                128: "#edcf72",
-
-                256: "#edcc61",
-
-                512: "#edc850",
-
-                1024: "#edc53f",
-
-                2048: "#edc22e"
-
-            };
-
-
-
-            for (let r = 0; r < 4; r++) {
-
-
-                for (let c = 0; c < 4; c++) {
-
-
-                    let tile = document.createElement("div");
-
-
-                    let value = board[r][c];
-
-
-                    tile.className = "tile";
-
-
-                    tile.style.background =
-                        colors[value];
-
-
-
-                    if (value !== 0) {
-
-                        tile.innerText = value;
-
-                    }
-
-
-
-                    area.appendChild(tile);
-
-
-                }
-
-            }
-
-
-
-            document.getElementById("score").innerText =
-                "Score: " + score;
-
-
-        }
-
-
-
-
-
-
-        function slide(row) {
-
-
-            row = row.filter(
-                x => x !== 0
-            );
-
-
-
-            for (let i = 0; i < row.length - 1; i++) {
-
-
-                if (row[i] === row[i + 1]) {
-
-
-                    row[i] *= 2;
-
-
-                    score += row[i];
-
-
-                    row.splice(i + 1, 1);
-
-
-                }
-
-            }
-
-
-
-            while (row.length < 4) {
-
-                row.push(0);
-
-            }
-
-
-
-            return row;
-
-
-        }
-
-
-
-
-
-
-        function moveLeft() {
-
-
-            saveState();
-
-
-            for (let r = 0; r < 4; r++) {
-
-                board[r] = slide(board[r]);
-
-            }
-
-
-            spawn();
-
-            draw();
-
-            checkWin();
-
-
-        }
-
-
-
-
-
-
-        function moveRight() {
-
-
-            saveState();
-
-
-            for (let r = 0; r < 4; r++) {
-
-
-                board[r].reverse();
-
-
-                board[r] = slide(board[r]);
-
-
-                board[r].reverse();
-
-
-            }
-
-
-
-            spawn();
-
-            draw();
-
-            checkWin();
-
-
-        }
-
-
-
-
-
-
-        function transpose() {
-
-
-            let newBoard = [
-
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0]
-
-            ];
-
-
-
-            for (let r = 0; r < 4; r++) {
-
-
-                for (let c = 0; c < 4; c++) {
-
-
-                    newBoard[c][r] = board[r][c];
-
-
-                }
-
-            }
-
-
-            board = newBoard;
-
-
-        }
-
-
-
-
-
-
-        function moveUp() {
-
-
-            saveState();
-
-
-            transpose();
-
-
-            for (let r = 0; r < 4; r++) {
-
-                board[r] = slide(board[r]);
-
-            }
-
-
-            transpose();
-
-
-            spawn();
-
-            draw();
-
-            checkWin();
-
-
-        }
-
-
-
-
-
-
-
-        function moveDown() {
-
-
-            saveState();
-
-
-            transpose();
-
-
-
-            for (let r = 0; r < 4; r++) {
-
-
-                board[r].reverse();
-
-
-                board[r] = slide(board[r]);
-
-
-                board[r].reverse();
-
-
-            }
-
-
-
-            transpose();
-
-
-
-            spawn();
-
-            draw();
-
-            checkWin();
-
-
-        }
-
-
-
-
-
-
-        function checkWin(){
-
-    if(!keepPlaying){
-        return;
     }
+
+}
+
+
+
+
+function spawn(){
+
+    let empty=[];
 
 
     for(let r=0;r<4;r++){
 
         for(let c=0;c<4;c++){
 
+            if(board[r][c]===0){
+
+                empty.push([r,c]);
+
+            }
+
+        }
+
+    }
+
+
+    if(empty.length){
+
+        let p =
+        empty[Math.floor(Math.random()*empty.length)];
+
+
+        board[p[0]][p[1]]=2;
+
+    }
+
+}
+
+
+
+
+function draw(){
+
+    let area =
+    document.getElementById("board");
+
+
+    area.innerHTML="";
+
+
+    let colors={
+
+        0:"#cdc1b4",
+        2:"#eee4da",
+        4:"#ede0c8",
+        8:"#f2b179",
+        16:"#f59563",
+        32:"#f67c5f",
+        64:"#f65e3b",
+        128:"#edcf72",
+        256:"#edcc61",
+        512:"#edc850",
+        1024:"#edc53f",
+        2048:"#edc22e"
+
+    };
+
+
+    for(let r=0;r<4;r++){
+
+        for(let c=0;c<4;c++){
+
+
+            let tile =
+            document.createElement("div");
+
+
+            let value =
+            board[r][c];
+
+
+            tile.className="tile";
+
+
+            tile.style.background =
+            colors[value];
+
+
+            if(value!==0){
+
+                tile.innerText=value;
+
+            }
+
+
+            area.appendChild(tile);
+
+
+        }
+
+    }
+
+
+    document.getElementById("score").innerText =
+    "Score: " + score;
+
+}
+
+
+
+
+function slide(row){
+
+    row =
+    row.filter(x=>x!==0);
+
+
+    for(let i=0;i<row.length-1;i++){
+
+
+        if(row[i]===row[i+1]){
+
+            row[i]*=2;
+
+            score+=row[i];
+
+            row.splice(i+1,1);
+
+        }
+
+    }
+
+
+    while(row.length<4){
+
+        row.push(0);
+
+    }
+
+
+    return row;
+
+}
+
+
+
+
+function moveLeft(){
+
+    saveState();
+
+
+    for(let r=0;r<4;r++){
+
+        board[r]=slide(board[r]);
+
+    }
+
+
+    spawn();
+
+    draw();
+
+    checkWin();
+
+}
+
+
+
+
+function moveRight(){
+
+    saveState();
+
+
+    for(let r=0;r<4;r++){
+
+        board[r].reverse();
+
+        board[r]=slide(board[r]);
+
+        board[r].reverse();
+
+    }
+
+
+    spawn();
+
+    draw();
+
+    checkWin();
+
+}
+
+
+
+
+function transpose(){
+
+    let n=[
+
+        [0,0,0,0],
+        [0,0,0,0],
+        [0,0,0,0],
+        [0,0,0,0]
+
+    ];
+
+
+    for(let r=0;r<4;r++){
+
+        for(let c=0;c<4;c++){
+
+            n[c][r]=board[r][c];
+
+        }
+
+    }
+
+
+    board=n;
+
+}
+
+
+
+
+function moveUp(){
+
+    saveState();
+
+
+    transpose();
+
+
+    for(let r=0;r<4;r++){
+
+        board[r]=slide(board[r]);
+
+    }
+
+
+    transpose();
+
+
+    spawn();
+
+    draw();
+
+    checkWin();
+
+}
+
+
+
+
+function moveDown(){
+
+    saveState();
+
+
+    transpose();
+
+
+    for(let r=0;r<4;r++){
+
+        board[r].reverse();
+
+        board[r]=slide(board[r]);
+
+        board[r].reverse();
+
+    }
+
+
+    transpose();
+
+
+    spawn();
+
+    draw();
+
+    checkWin();
+
+}
+
+
+
+
+
+function checkWin(){
+
+
+    if(!keepPlaying){
+
+        return;
+
+    }
+
+
+
+    for(let r=0;r<4;r++){
+
+        for(let c=0;c<4;c++){
+
+
             if(board[r][c]===2048){
+
 
                 keepPlaying=false;
 
 
-                let answer = confirm(
-                    "You reached 2048!\n\nOK = Keep Going\nCancel = Restart"
+
+                let answer =
+                confirm(
+                "You reached 2048!\n\nOK = Keep Going\nCancel = Restart"
                 );
+
 
 
                 if(answer){
 
-                    // continue game
                     keepPlaying=true;
 
                 }
+
                 else{
 
                     restart();
@@ -582,6 +508,7 @@
 
 
                 return;
+
 
             }
 
@@ -592,181 +519,138 @@
 }
 
 
-                        let keepGoing =
-                            confirm(
-                                "You reached 2048!\n\nOK = Keep Going\nCancel = Restart"
-                            );
 
 
 
-                        if (!keepGoing) {
+document.addEventListener(
+"keydown",
+function(e){
 
-                            restart();
 
-                        }
+    if(e.key==="ArrowLeft"||e.key==="a"){
 
+        moveLeft();
 
+    }
 
-                        return;
 
+    if(e.key==="ArrowRight"||e.key==="d"){
 
-                    }
+        moveRight();
 
-                }
+    }
 
-            }
 
+    if(e.key==="ArrowUp"||e.key==="w"){
 
-        }
+        moveUp();
 
+    }
 
 
+    if(e.key==="ArrowDown"||e.key==="s"){
 
+        moveDown();
 
+    }
 
 
-        document.addEventListener(
-            "keydown",
-            function (e) {
+    if(e.key==="u"){
 
+        undo();
 
-                if (e.key === "ArrowLeft" || e.key === "a") {
+    }
 
-                    moveLeft();
 
-                }
-
-
-
-                if (e.key === "ArrowRight" || e.key === "d") {
-
-                    moveRight();
-
-                }
-
-
-
-                if (e.key === "ArrowUp" || e.key === "w") {
-
-                    moveUp();
-
-                }
-
-
-
-                if (e.key === "ArrowDown" || e.key === "s") {
-
-                    moveDown();
-
-                }
-
-
-
-                if (e.key === "u") {
-
-                    undo();
-
-                }
-
-
-
-                if (e.key === "r") {
-
-                    restart();
-
-                }
-
-
-            });
-
-
-
-
-
-
-        let startX = 0;
-
-        let startY = 0;
-
-
-
-        document.addEventListener(
-            "touchstart",
-            function (e) {
-
-
-                startX = e.touches[0].clientX;
-
-                startY = e.touches[0].clientY;
-
-
-            });
-
-
-
-
-        document.addEventListener(
-            "touchend",
-            function (e) {
-
-
-                let dx =
-                    e.changedTouches[0].clientX - startX;
-
-
-                let dy =
-                    e.changedTouches[0].clientY - startY;
-
-
-
-                if (Math.abs(dx) > Math.abs(dy)) {
-
-
-                    if (dx > 0) {
-
-                        moveRight();
-
-                    }
-
-                    else {
-
-                        moveLeft();
-
-                    }
-
-
-                }
-
-
-                else {
-
-
-                    if (dy > 0) {
-
-                        moveDown();
-
-                    }
-
-                    else {
-
-                        moveUp();
-
-                    }
-
-
-                }
-
-
-            });
-
-
-
-
+    if(e.key==="r"){
 
         restart();
 
+    }
 
-    </script>
+
+});
+
+
+
+
+// phone swipe
+
+let startX=0;
+
+let startY=0;
+
+
+
+document.addEventListener(
+"touchstart",
+function(e){
+
+    startX=e.touches[0].clientX;
+
+    startY=e.touches[0].clientY;
+
+});
+
+
+
+
+document.addEventListener(
+"touchend",
+function(e){
+
+
+    let dx =
+    e.changedTouches[0].clientX-startX;
+
+
+    let dy =
+    e.changedTouches[0].clientY-startY;
+
+
+
+    if(Math.abs(dx)>Math.abs(dy)){
+
+
+        if(dx>0){
+
+            moveRight();
+
+        }
+        else{
+
+            moveLeft();
+
+        }
+
+    }
+
+    else{
+
+
+        if(dy>0){
+
+            moveDown();
+
+        }
+
+        else{
+
+            moveUp();
+
+        }
+
+    }
+
+
+});
+
+
+
+restart();
+
+
+</script>
 
 
 </body>
